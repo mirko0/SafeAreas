@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.mcodelogic.safeareas'
+version = '1.0.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly(files(System.getProperty("user.home") + "/AppData/Roaming/Hytale/install/release/package/game/$game_build/Server/HytaleServer.jar"))
+
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+
+    testCompileOnly("org.projectlombok:lombok:1.18.42")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+}
+
+test {
+    useJUnitPlatform()
+}
