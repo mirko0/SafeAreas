@@ -21,7 +21,6 @@ import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
-import com.mcodelogic.safeareas.utils.DefaultColors;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
@@ -55,8 +54,9 @@ public class DropItemProtectionFlag extends EntityEventSystem<EntityStore, DropI
 
                 boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
                 if (!canNotify) return;
-                var primaryMessage = Message.raw("Item Drops Disabled!").color(DefaultColors.RED.getColor());
-                var secondaryMessage = Message.raw("You cannot drop items in this region!").color(DefaultColors.GRAY.getColor());
+                var lang = RegionManager.instance.getLang();
+                var primaryMessage = lang.getMessage("ProtectionDropPrimary");
+                var secondaryMessage = lang.getMessage("ProtectionDropSecondary");
                 var icon = new ItemStack("Rubble_Calcite_Medium", 1).toPacket();
 
                 NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);

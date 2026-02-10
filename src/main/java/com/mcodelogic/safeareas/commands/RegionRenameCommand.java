@@ -25,8 +25,8 @@ public class RegionRenameCommand extends CommandBase {
 
     private final RegionManager manager;
     public RegionRenameCommand(RegionManager manager) {
+        super("rename", manager.getLang().get("CommandDescRegionRename"));
         this.manager = manager;
-        super("rename", "Rename existing region.");
         this.worldArg = this.withRequiredArg("world", "Selected world.", ArgTypes.WORLD);
         this.regionName = this.withRequiredArg("name", "Region name.", ArgTypes.STRING);
         this.newRegionName = this.withRequiredArg("new_name", "New region name.", ArgTypes.STRING);
@@ -39,13 +39,14 @@ public class RegionRenameCommand extends CommandBase {
         String newRegionName = this.newRegionName.get(commandContext);
         Set<Region> regions = manager.getRegionsByWorld().get(world.getName());
         if (regions == null) regions = new HashSet<>();
+        var lang = manager.getLang();
         if (regions.isEmpty() || regions.stream().noneMatch(r -> r.getName().equals(regionName))) {
-            commandContext.sendMessage(Message.raw("Region not found!").color(Color.red));
+            commandContext.sendMessage(lang.getMessage("CommandRegionNotFound"));
             return;
         }
         Region region = regions.stream().filter(r -> r.getName().equals(regionName)).findFirst().orElse(null);
         if (region == null) {
-            commandContext.sendMessage(Message.raw("Region not found!").color(Color.red));
+            commandContext.sendMessage(lang.getMessage("CommandRegionNotFound"));
             return;
         }
         manager.getApi().deleteRegion(region.getId());
@@ -54,6 +55,6 @@ public class RegionRenameCommand extends CommandBase {
         manager.getRegionsById().put(region.getId(), region);
         manager.getRegionsByWorld().get(world.getName()).add(region);
 
-        commandContext.sendMessage(Message.raw("Region " + regionName + " renamed to: " + newRegionName + ".").color(Color.GREEN));
+        commandContext.sendMessage(lang.getMessage("CommandRegionRenamed", regionName, newRegionName));
     }
 }

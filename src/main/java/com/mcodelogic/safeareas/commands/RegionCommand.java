@@ -7,7 +7,7 @@ import com.mcodelogic.safeareas.utils.KCommandUtil;
 public class RegionCommand extends AbstractCommandCollection {
     private final RegionManager manager;
     public RegionCommand(RegionManager manager) {
-        super("region", "Manage servers regions");
+        super("region", manager.getLang().get("CommandDescRegion"));
         this.manager = manager;
         this.addSubCommand(new RegionListCommand(manager));
         this.addSubCommand(new RegionRemoveFlagCommand(manager));

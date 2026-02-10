@@ -1,17 +1,15 @@
 package com.mcodelogic.safeareas.commands;
 
-import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
+import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
 import com.mcodelogic.safeareas.utils.KCommandUtil;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-import java.awt.*;
-
 public class RegionFlagsCommand extends CommandBase {
     public RegionFlagsCommand() {
-        super("flags", "Show all available flags for regions");
+        super("flags", RegionManager.instance.getLang().get("CommandDescRegionFlags"));
         this.requirePermission(KCommandUtil.permissionFromCommand("region", "flags"));
     }
 
@@ -23,9 +21,6 @@ public class RegionFlagsCommand extends CommandBase {
             builder.append(flag.name()).append(", ");
         }
 
-        commandContext.sendMessage(Message.join(
-                Message.raw("Available flags: \n" ).color(Color.GREEN),
-                Message.raw(builder.toString()).color(Color.WHITE)
-        ));
+        commandContext.sendMessage(RegionManager.instance.getLang().getMessage("CommandRegionFlagsAvailable", builder.toString()));
     }
 }

@@ -21,7 +21,6 @@ import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
-import com.mcodelogic.safeareas.utils.DefaultColors;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -55,8 +54,9 @@ public class CraftProtectionFlag extends EntityEventSystem<EntityStore, CraftRec
                 boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
                 if (!canNotify) return;
 
-                var primaryMessage = Message.raw("Crafting Disabled!").color(DefaultColors.RED.getColor());
-                var secondaryMessage = Message.raw("You cannot craft in this region!").color(DefaultColors.GRAY.getColor());
+                var lang = RegionManager.instance.getLang();
+                var primaryMessage = lang.getMessage("ProtectionCraftPrimary");
+                var secondaryMessage = lang.getMessage("ProtectionCraftSecondary");
                 var icon = new ItemStack("Bench_WorkBench", 1).toPacket();
                 NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
             }

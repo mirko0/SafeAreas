@@ -4,8 +4,6 @@ $Common.@PageOverlay {}
 
 $Common.@Container {
   Anchor: (Width: 680, Height: 620);
-  @CloseButton = true;
-
   #Title {
     Group {
       LayoutMode: Left;
@@ -19,7 +17,7 @@ $Common.@Container {
       Group { FlexWeight: 1; }
 
       Group #HeaderSearchWrapper {
-        Anchor: (Width: 200);
+        Anchor: (Width: 200, Right: 20);
         TextField #SearchInput {
           Anchor: (Height: 30);
           PlaceholderText: "Search regions...";
@@ -47,9 +45,8 @@ $Common.@Container {
 
       Group { FlexWeight: 1; }
 
-      $Common.@TertiaryTextButton #RefreshButton {
-        @Anchor = (Height: 28);
-        Anchor: (Width: 90, Height: 28);
+      $Common.@SmallTertiaryTextButton #RefreshButton {
+        @Anchor = (Width: 140);
         Text: "REFRESH";
       }
     }

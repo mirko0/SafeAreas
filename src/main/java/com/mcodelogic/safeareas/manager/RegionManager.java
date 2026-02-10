@@ -14,6 +14,7 @@ import com.mcodelogic.safeareas.model.SelectionArea;
 import com.mcodelogic.safeareas.model.enums.RegionType;
 import com.mcodelogic.safeareas.storage.IRegionStorage;
 import com.mcodelogic.safeareas.storage.JsonRegionStorage;
+import com.mcodelogic.safeareas.lang.Lang;
 import lombok.Getter;
 
 import java.nio.file.Path;
@@ -40,9 +41,13 @@ public class RegionManager{
     @Getter
     private final KConfig config;
 
+    @Getter
+    private final KMain main;
+
     public static RegionManager instance;
     public RegionManager(KMain pluginMain) {
         instance = this;
+        this.main = pluginMain;
         this.config = pluginMain.getConfiguration();
         Path dataDirectory = pluginMain
                 .getDataDirectory()
@@ -55,6 +60,10 @@ public class RegionManager{
         registerSystems(pluginMain);
         registerEvents(pluginMain);
         pluginMain.getEntityStoreRegistry().registerSystem(tracker.getPlayerTickingSystem());
+    }
+
+    public Lang getLang() {
+        return main.getLang();
     }
 
     public void registerSystems(KMain main) {

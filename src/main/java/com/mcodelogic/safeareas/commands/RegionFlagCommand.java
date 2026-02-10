@@ -31,7 +31,7 @@ public class RegionFlagCommand extends CommandBase {
     private final RegionManager manager;
 
     public RegionFlagCommand(RegionManager manager) {
-        super("flag", "Add flag to region.");
+        super("flag", manager.getLang().get("CommandDescRegionFlag"));
         this.manager = manager;
         this.worldArg = this.withRequiredArg("world", "Selected world.", ArgTypes.WORLD);
         this.regionName = this.withRequiredArg("name", "Region name.", ArgTypes.STRING);
@@ -53,8 +53,9 @@ public class RegionFlagCommand extends CommandBase {
         flagValue = flagValue.trim();
         Set<Region> regions = manager.getRegionsByWorld().get(world.getName());
         if (regions == null) regions = new HashSet<>();
+        var lang = manager.getLang();
         if (regions.isEmpty() || regions.stream().noneMatch(r -> r.getName().equals(regionName))) {
-            commandContext.sendMessage(Message.raw("Region not found!").color(Color.red));
+            commandContext.sendMessage(lang.getMessage("CommandRegionNotFound"));
             return;
         }
         Region region = regions.stream().filter(r -> r.getName().equals(regionName)).findFirst().orElse(null);
@@ -62,17 +63,17 @@ public class RegionFlagCommand extends CommandBase {
         RegionFlag[] values = RegionFlag.values();
         List<String> flags = List.of(values).stream().map(Enum::name).toList();
         if (!flags.contains(flagName)) {
-            commandContext.sendMessage(Message.raw("Invalid flag! Available Flags: " + flags).color(Color.RED));
+            commandContext.sendMessage(lang.getMessage("CommandRegionFlagInvalid", flags.toString()));
             return;
         }
         RegionFlag flag = RegionFlag.valueOf(flagName);
         Serializable value = flag.getValueType().equals(Boolean.class) ? parseBoolean(flagValue) : flagValue;
         if (flagValue.equalsIgnoreCase("remove")) {
             region.getFlags().remove(flag);
-            commandContext.sendMessage(Message.raw("Flag " + flagName + " removed from region " + region.getName()).color(Color.GREEN));
-        }else {
+            commandContext.sendMessage(lang.getMessage("CommandRegionFlagRemoved", flagName, region.getName()));
+        } else {
             region.setFlag(flag, value);
-            commandContext.sendMessage(Message.raw("Flag " + flagName + " set to " + value + " for region " + region.getName()).color(Color.GREEN));
+            commandContext.sendMessage(lang.getMessage("CommandRegionFlagSet", flagName, value, region.getName()));
         }
         manager.getApi().save(region);
     }

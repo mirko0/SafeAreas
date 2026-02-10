@@ -8,7 +8,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.command.commands.utility.help.HelpCommand;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -33,18 +32,23 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
 
     private final Region region;
     private final Map<RegionFlag, Object> pendingChanges = new HashMap<>();
+    private Integer pendingPriority = null;
 
     public static class RegionDetailEventData {
         public String action;
         public String flagName;
         public String flagValue;
+        public String priorityValue;
 
         public static final BuilderCodec<RegionDetailEventData> CODEC = BuilderCodec.builder(RegionDetailEventData.class, RegionDetailEventData::new)
                 .append(new KeyedCodec<>("Action", Codec.STRING), (o, v) -> o.action = v, o -> o.action)
                 .add()
                 .append(new KeyedCodec<>("FlagName", Codec.STRING), (o, v) -> o.flagName = v, o -> o.flagName)
                 .add()
-                .append(new KeyedCodec<>("FlagValue", Codec.STRING), (o, v) -> o.flagValue = v, o -> o.flagValue)
+                // NOTE: leading '@' is required for live UI value bindings
+                .append(new KeyedCodec<>("@FlagValue", Codec.STRING), (o, v) -> o.flagValue = v, o -> o.flagValue)
+                .add()
+                .append(new KeyedCodec<>("@PriorityValue", Codec.STRING), (o, v) -> o.priorityValue = v, o -> o.priorityValue)
                 .add()
                 .build();
     }
@@ -63,11 +67,33 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
     ) {
         commandBuilder.append("Pages/RegionDetailPage.ui");
 
-        commandBuilder.set("#RegionTitle.Text", "REGION: " + region.getName().toUpperCase());
+        commandBuilder.set("#RegionTitle.Text", region.getName().toUpperCase());
         commandBuilder.set("#RegionTypeLabel.Text", region.getType().name());
+        commandBuilder.set("#PriorityInput.Value", String.valueOf(getEffectivePriority()));
 
         buildBooleanFlags(commandBuilder, eventBuilder);
         buildTextFlags(commandBuilder, eventBuilder);
+
+        eventBuilder.addEventBinding(
+                CustomUIEventBindingType.ValueChanged,
+                "#PriorityInput",
+                new EventData()
+                        .append("Action", "SetPriority")
+                        .append("@PriorityValue", "#PriorityInput.Value"),
+                false
+        );
+        eventBuilder.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                "#PriorityDown",
+                new EventData().append("Action", "DecPriority"),
+                false
+        );
+        eventBuilder.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                "#PriorityUp",
+                new EventData().append("Action", "IncPriority"),
+                false
+        );
 
         eventBuilder.addEventBinding(
                 CustomUIEventBindingType.Activating,
@@ -135,7 +161,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
 
             commandBuilder.set(selector + " #FlagLabel.Text", formatFlagName(flag.name()));
             commandBuilder.set(selector + " #Input.Value", currentValue);
-            commandBuilder.set(selector + " #Input.PlaceholderText", "Enter " + formatFlagName(flag.name()).toLowerCase() + "...");
+            commandBuilder.set(selector + " #Input.PlaceholderText", RegionManager.instance.getLang().get("UiDetailPlaceholder", formatFlagName(flag.name()).toLowerCase()));
 
             eventBuilder.addEventBinding(
                     CustomUIEventBindingType.ValueChanged,
@@ -143,11 +169,15 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
                     new EventData()
                             .append("Action", "UpdateTextFlag")
                             .append("FlagName", flag.name())
-                            .append("FlagValue", selector + " #Input.Value"),
+                            .append("@FlagValue", selector + " #Input.Value"),
                     false
             );
             i++;
         }
+    }
+
+    private int getEffectivePriority() {
+        return pendingPriority != null ? pendingPriority : region.getPriority();
     }
 
     @Override
@@ -157,11 +187,37 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
             @NonNullDecl RegionDetailEventData data
     ) {
         switch (data.action) {
+            case "SetPriority":
+                if (data.priorityValue != null) {
+                    String v = data.priorityValue.trim();
+                    if (v.isEmpty() || "-".equals(v)) {
+                        pendingPriority = null;
+                    } else {
+                        try {
+                            pendingPriority = Integer.parseInt(v);
+                        } catch (NumberFormatException ignored) {
+                            // keep current pending value
+                        }
+                    }
+                }
+                refreshDetailPage(ref, store);
+                break;
+
+            case "IncPriority":
+                pendingPriority = getEffectivePriority() + 1;
+                refreshDetailPage(ref, store);
+                break;
+
+            case "DecPriority":
+                pendingPriority = getEffectivePriority() - 1;
+                refreshDetailPage(ref, store);
+                break;
+
             case "SetFlagTrue":
                 if (data.flagName != null) {
                     RegionFlag flag = RegionFlag.valueOf(data.flagName);
                     pendingChanges.put(flag, true);
-                    playerRef.sendMessage(Message.raw("§e" + formatFlagName(flag.name()) + " → §aALLOW"));
+                    playerRef.sendMessage(RegionManager.instance.getLang().getMessage("UiDetailFlagAllow", formatFlagName(flag.name())));
                 }
                 refreshDetailPage(ref, store);
                 break;
@@ -170,7 +226,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
                 if (data.flagName != null) {
                     RegionFlag flag = RegionFlag.valueOf(data.flagName);
                     pendingChanges.put(flag, false);
-                    playerRef.sendMessage(Message.raw("§e" + formatFlagName(flag.name()) + " → §cDENY"));
+                    playerRef.sendMessage(RegionManager.instance.getLang().getMessage("UiDetailFlagDeny", formatFlagName(flag.name())));
                 }
                 refreshDetailPage(ref, store);
                 break;
@@ -179,7 +235,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
                 if (data.flagName != null) {
                     RegionFlag flag = RegionFlag.valueOf(data.flagName);
                     pendingChanges.put(flag, CLEAR_FLAG);
-                    playerRef.sendMessage(Message.raw("§7" + formatFlagName(flag.name()) + " → §8NULL"));
+                    playerRef.sendMessage(RegionManager.instance.getLang().getMessage("UiDetailFlagNull", formatFlagName(flag.name())));
                 }
                 refreshDetailPage(ref, store);
                 break;
@@ -194,14 +250,15 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
 
             case "Save":
                 savePendingChanges();
-                playerRef.sendMessage(Message.raw("§aRegion flags saved!"));
+                playerRef.sendMessage(RegionManager.instance.getLang().getMessage("UiDetailSaved"));
                 navigateBack(ref, store);
                 break;
 
             case "Back":
                 if (!pendingChanges.isEmpty()) {
-                    playerRef.sendMessage(Message.raw("§6Unsaved changes discarded"));
+                    playerRef.sendMessage(RegionManager.instance.getLang().getMessage("UiDetailDiscarded"));
                 }
+                pendingPriority = null;
                 navigateBack(ref, store);
                 break;
 
@@ -212,6 +269,9 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
     }
 
     private void savePendingChanges() {
+        if (pendingPriority != null) {
+            region.setPriority(pendingPriority);
+        }
         for (Map.Entry<RegionFlag, Object> entry : pendingChanges.entrySet()) {
             RegionFlag flag = entry.getKey();
             Object value = entry.getValue();
@@ -237,6 +297,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
         
         RegionManager.instance.getApi().save(region);
         pendingChanges.clear();
+        pendingPriority = null;
     }
 
     private void refreshDetailPage(Ref<EntityStore> ref, Store<EntityStore> store) {
@@ -244,6 +305,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
         UIEventBuilder ev = new UIEventBuilder();
         cmd.clear("#BooleanFlagsList");
         cmd.clear("#TextFlagsList");
+        cmd.set("#PriorityInput.Value", String.valueOf(getEffectivePriority()));
         buildBooleanFlags(cmd, ev);
         buildTextFlags(cmd, ev);
         sendUpdate(cmd, ev, false);

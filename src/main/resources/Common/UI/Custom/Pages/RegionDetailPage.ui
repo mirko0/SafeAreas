@@ -11,21 +11,59 @@ $Common.@Container {
       Anchor: (Height: 38);
 
       Label #RegionTitle {
-        Text: "REGION: Loading...";
-        FlexWeight: 1;
-        Style: (FontSize: 15, TextColor: #b4c8c9, RenderBold: true, RenderUppercase: true);
+        Text: "Loading...";
+        Anchor: (Left: 20);
+        Style: (FontSize: 16, TextColor: #ffffff, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
+
+      Group { FlexWeight: 1; }
 
       Label #RegionTypeLabel {
         Text: "GLOBAL";
-        Anchor: (Width: 100);
-        Style: (FontSize: 13, TextColor: #7a9cc6, RenderBold: true);
+        Anchor: (Width: 180, Right: 20);
+        Style: (FontSize: 12, TextColor: #7a9cc6, RenderBold: true, RenderUppercase: true, HorizontalAlignment: End, VerticalAlignment: Center);
       }
     }
   }
 
   #Content {
     LayoutMode: Top;
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 32);
+
+      Label {
+        Text: "Priority:";
+        Anchor: (Width: 70, Height: 26);
+        Style: (FontSize: 12, TextColor: #96a9be, RenderBold: true, VerticalAlignment: Center);
+      }
+
+      $Common.@SmallTertiaryTextButton #PriorityDown {
+        @Anchor = (Width: 44);
+        Text: "-";
+      }
+
+      Group { Anchor: (Width: 8); }
+
+      TextField #PriorityInput {
+        Anchor: (Width: 80, Height: 30);
+        Style: $Common.@DefaultInputFieldStyle;
+        PlaceholderStyle: $Common.@DefaultInputFieldPlaceholderStyle;
+        Background: $Common.@InputBoxBackground;
+        Padding: (Horizontal: 12);
+        PlaceholderText: "0";
+      }
+
+      Group { Anchor: (Width: 8); }
+
+      $Common.@SmallTertiaryTextButton #PriorityUp {
+        @Anchor = (Width: 44);
+        Text: "+";
+      }
+
+      Group { FlexWeight: 1; }
+    }
 
     Group #BooleanFlagsSection {
       LayoutMode: Top;
@@ -76,14 +114,14 @@ $Common.@Container {
       Group { FlexWeight: 1; }
 
       $Common.@TertiaryTextButton #BackButton {
-        @Anchor = (Width: 110, Height: 36);
+        @Anchor = (Width: 120, Height: 36, Bottom: 5);
         Text: "BACK";
       }
 
       Group { Anchor: (Width: 10); }
 
       $Common.@TextButton #SaveButton {
-        @Anchor = (Width: 110, Height: 36);
+        @Anchor = (Width: 120, Height: 36, Bottom: 5);
         Text: "SAVE";
       }
 

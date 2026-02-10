@@ -23,7 +23,7 @@ public class RegionListCommand extends CommandBase {
     private final RegionManager manager;
     public RegionListCommand(RegionManager manager) {
         this.manager = manager;
-        super("list", "List regions in selected world.");
+        super("list", manager.getLang().get("CommandDescRegionList"));
         this.worldArg = this.withRequiredArg("world", "Selected world.", ArgTypes.WORLD);
         this.requirePermission(KCommandUtil.permissionFromCommand("region", "list"));
     }
@@ -36,6 +36,6 @@ public class RegionListCommand extends CommandBase {
         StringBuilder regionsBuilder = new StringBuilder();
         regions.forEach(r -> regionsBuilder.append(r.getName()).append(", "));
 
-        commandContext.sendMessage(Message.raw("Regions (" + regions.size() + "): " + regionsBuilder.toString()));
+        commandContext.sendMessage(manager.getLang().getMessage("CommandRegionListHeader", regions.size(), regionsBuilder.toString()));
     }
 }

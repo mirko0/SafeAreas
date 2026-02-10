@@ -9,6 +9,7 @@ import com.mcodelogic.safeareas.model.FlagValue;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
 import com.mcodelogic.safeareas.utils.RegionFlagResolver;
+import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.utils.TinyMsg;
 
 import java.util.Set;
@@ -20,7 +21,8 @@ public class GreetingAndFarewellFlag {
             String title = RegionFlagResolver.resolve(regions, RegionFlag.GREETING_TITLE, null);
             String subTitle = RegionFlagResolver.resolve(regions, RegionFlag.GREETING_SUBTITLE, null);
             if (title == null) return;
-            showTitle(playerRef, TinyMsg.parse(title), TinyMsg.parse(subTitle == null ? "SafeAreas" : subTitle));
+            String defaultSub = RegionManager.instance.getLang().get("GreetingDefaultSubtitle");
+            showTitle(playerRef, TinyMsg.parse(title), TinyMsg.parse(subTitle == null ? defaultSub : subTitle));
         } catch (Exception e) {
             KMain.LOGGER.atWarning().log("Failed to send greeting title!");
             e.printStackTrace();
@@ -32,7 +34,8 @@ public class GreetingAndFarewellFlag {
             String title = RegionFlagResolver.resolve(regions, RegionFlag.FAREWELL_TITLE, null);
             String subTitle = RegionFlagResolver.resolve(regions, RegionFlag.FAREWELL_SUBTITLE, null);
             if (title == null) return;
-            showTitle(playerRef, TinyMsg.parse(title), TinyMsg.parse(subTitle == null ? "SafeAreas" : subTitle));
+            String defaultSub = RegionManager.instance.getLang().get("GreetingDefaultSubtitle");
+            showTitle(playerRef, TinyMsg.parse(title), TinyMsg.parse(subTitle == null ? defaultSub : subTitle));
         } catch (Exception e) {
             KMain.LOGGER.atWarning().log("Failed to send farewell title!");
             e.printStackTrace();

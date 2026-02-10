@@ -19,7 +19,6 @@ import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
-import com.mcodelogic.safeareas.utils.DefaultColors;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
@@ -55,8 +54,9 @@ public class BreakProtectionFlag extends EntityEventSystem<EntityStore, BreakBlo
                 boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
                 if (!canNotify) return;
 
-                var primaryMessage = Message.raw("Block Breaking Disabled!").color(DefaultColors.RED.getColor());
-                var secondaryMessage = Message.raw("You cannot break blocks in this region!").color(DefaultColors.GRAY.getColor());
+                var lang = RegionManager.instance.getLang();
+                var primaryMessage = lang.getMessage("ProtectionBreakPrimary");
+                var secondaryMessage = lang.getMessage("ProtectionBreakSecondary");
                 String itemId = event.getBlockType().getItem() == null ? "Wood_Fire_Trunk" : event.getBlockType().getItem().getId();
                 var icon = new ItemStack(itemId, 1).toPacket();
 

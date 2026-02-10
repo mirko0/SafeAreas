@@ -22,7 +22,6 @@ import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
-import com.mcodelogic.safeareas.utils.DefaultColors;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
@@ -58,8 +57,9 @@ public class BuildProtectionFlag extends EntityEventSystem<EntityStore, PlaceBlo
                 boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
                 if (!canNotify) return;
 
-                var primaryMessage = Message.raw("Block Placing!").color(DefaultColors.RED.getColor());
-                var secondaryMessage = Message.raw("You cannot place blocks in this region!").color(DefaultColors.GRAY.getColor());
+                var lang = RegionManager.instance.getLang();
+                var primaryMessage = lang.getMessage("ProtectionBuildPrimary");
+                var secondaryMessage = lang.getMessage("ProtectionBuildSecondary");
                 String itemid = event.getItemInHand() != null ? event.getItemInHand().getItem().getId() : "Wood_Beech_Trunk";
                 var icon = new ItemStack(itemid, 1).toPacket();
                 NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);

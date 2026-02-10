@@ -1,0 +1,14 @@
+$Common = "../Common.ui";
+
+// Active (selected) world filter chip
+TextButton {
+  Anchor: (Height: $Common.@SmallButtonHeight);
+  Padding: (Horizontal: 16);
+  Text: "All";
+  Style: TextButtonStyle(
+    Default: (Background: (Color: #5e512c(0.85)), LabelStyle: (FontSize: 11, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+    Hovered: (Background: (Color: #6e6238(0.90)), LabelStyle: (FontSize: 11, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+    Pressed: (Background: (Color: #4b4023(0.95)), LabelStyle: (FontSize: 11, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center))
+  );
+}
+

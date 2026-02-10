@@ -16,7 +16,7 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 public class RegionUICommand extends AbstractPlayerCommand {
 
     public RegionUICommand(RegionManager manager) {
-        super("ui", "Open the region management UI interface");
+        super("ui", manager.getLang().get("CommandDescRegionUi"));
         this.requirePermission(KCommandUtil.permissionFromCommand("region", "ui"));
     }
 

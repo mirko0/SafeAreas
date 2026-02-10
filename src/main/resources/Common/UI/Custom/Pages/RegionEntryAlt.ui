@@ -4,9 +4,9 @@ Button #RegionButton {
   Anchor: (Height: 70);
   Padding: (Left: 16, Right: 16, Top: 10, Bottom: 10);
   Style: ButtonStyle(
-    Default: (Background: (Color: #141b27(0.25))),
-    Hovered: (Background: (Color: #1c2636(0.45))),
-    Pressed: (Background: (Color: #0e1420(0.55)))
+    Default: (Background: (Color: #0d0f1b(0.40))),
+    Hovered: (Background: (Color: #1c2636(0.55))),
+    Pressed: (Background: (Color: #0e1420(0.65)))
   );
 
   Group {
@@ -73,7 +73,7 @@ Button #RegionButton {
     }
 
 
-    Group { Anchor: (Height: 2); }
 
+    Group { Anchor: (Height: 2); }
   }
 }

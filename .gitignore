@@ -45,3 +45,6 @@ bin/
 /gradlew
 /gradlew.bat
 /gradle/
+/libs/
+/UI_ALIGNMENT_FIX.md
+/UI_GUIDE.md

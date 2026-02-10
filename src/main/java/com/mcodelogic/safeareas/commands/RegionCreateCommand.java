@@ -15,13 +15,13 @@ import com.hypixel.hytale.server.core.prefab.selection.standard.BlockSelection;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.mcodelogic.safeareas.lang.Lang;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionType;
 import com.mcodelogic.safeareas.utils.KCommandUtil;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,10 +35,11 @@ public class RegionCreateCommand extends AbstractPlayerCommand {
     private final RequiredArg<String> name;
 
     public RegionCreateCommand(RegionManager manager) {
+        super("create", manager.getLang().get("CommandDescRegionCreate"));
         this.manager = manager;
-        super("create", "Create regions in world.");
-        this.type = this.withRequiredArg("type", "Region type: GLOBAL, AREA, CUBOID.", ArgTypes.STRING);
-        this.name = this.withRequiredArg("name", "Region name. (Must be unique)", ArgTypes.STRING);
+        var lang = manager.getLang();
+        this.type = this.withRequiredArg("type", lang.get("CommandRegionCreateArgType"), ArgTypes.STRING);
+        this.name = this.withRequiredArg("name", lang.get("CommandRegionCreateArgName"), ArgTypes.STRING);
         this.requirePermission(KCommandUtil.permissionFromCommand("region", "create"));
     }
 
@@ -48,20 +49,21 @@ public class RegionCreateCommand extends AbstractPlayerCommand {
         String type = this.type.get(commandContext).toUpperCase().trim();
         String name = this.name.get(commandContext);
         String[] allowedTypes = {"GLOBAL", "AREA", "CUBOID"};
+        var lang = manager.getLang();
         if (Arrays.stream(allowedTypes).noneMatch(type::equalsIgnoreCase)) {
-            commandContext.sendMessage(Message.raw("Invalid region type! Available Types: GLOBAL, AREA, CUBOID").color(Color.RED));
+            commandContext.sendMessage(lang.getMessage("CommandRegionCreateInvalidType"));
             return;
         }
         Region found = manager.getApi().getRegionByName(world.getName(), name);
         if (found != null) {
-            commandContext.sendMessage(Message.raw("Region with name " + name + " already exists!").color(Color.RED));
+            commandContext.sendMessage(lang.getMessage("CommandRegionCreateNameExists", name));
             return;
         }
         if (type.equals("GLOBAL")) {
             Collection<Region> allRegionsInWorld = manager.getApi().getAllRegionsInWorld(world);
             boolean globalExists = allRegionsInWorld.stream().anyMatch(region -> region.getType().equals(RegionType.GLOBAL));
             if (globalExists) {
-                commandContext.sendMessage(Message.raw("Global region already exists!").color(Color.RED));
+                commandContext.sendMessage(lang.getMessage("CommandRegionCreateGlobalExists"));
                 return;
             }
         }
@@ -75,7 +77,7 @@ public class RegionCreateCommand extends AbstractPlayerCommand {
                     BlockSelection selection = builderState.getSelection();
                     if (selection == null || !selection.hasSelectionBounds()) {
                         if (!type.equals("GLOBAL")) {
-                            commandContext.sendMessage(Message.raw("Use the Selection Tool to select a region!").bold(true).color(Color.RED));
+                            commandContext.sendMessage(manager.getLang().getMessage("CommandRegionCreateUseSelectionTool"));
                             return;
                         }
                     }
@@ -94,26 +96,26 @@ public class RegionCreateCommand extends AbstractPlayerCommand {
                         manager.getApi().createCuboidRegion(world.getName(), name, min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ(), 1);
                     }
 
-                    Message created = Message.raw("======Region Created======" + "\n").bold(true).color(Color.GREEN);
-                    Message nameMessage = Message.raw("Name: " + name + "\n").color(Color.WHITE);
-                    Message typeMessage = Message.raw("Type: " + type + "\n").color(Color.WHITE);
-                    String minString = type.equals("CUBOID") ? min.getX() + ", " + min.getY() + ", " + min.getZ() : "Global - Global";
-                    String maxString = type.equals("CUBOID") ? max.getX() + ", " + max.getY() + ", " + max.getZ() : "Global - Global";
-                    if (type.equals("AREA")) {
-                        minString = min.getX() + ", " + min.getZ();
-                        maxString = max.getX() + ", " + max.getZ();
-                    }
-                    Message boundsMessage = Message.raw("Bounds: " + minString + " - " + maxString + "\n").color(Color.WHITE);
+                    Lang createLang = manager.getLang();
                     List<Message> messages = new ArrayList<>();
-                    messages.add(created);
-                    messages.add(nameMessage);
-                    messages.add(typeMessage);
-                    if (!type.equals("GLOBAL")) messages.add(boundsMessage);
-
+                    messages.add(createLang.getMessage("CommandRegionCreateSuccessHeader"));
+                    messages.add(createLang.getMessage("CommandRegionCreateSuccessName", name));
+                    messages.add(createLang.getMessage("CommandRegionCreateSuccessType", type));
+                    if (type.equals("GLOBAL")) {
+                        messages.add(createLang.getMessage("CommandRegionCreateSuccessBoundsGlobal"));
+                    } else {
+                        String minStr = type.equals("CUBOID")
+                                ? (int) min.getX() + ", " + (int) min.getY() + ", " + (int) min.getZ()
+                                : (int) min.getX() + ", " + (int) min.getZ();
+                        String maxStr = type.equals("CUBOID")
+                                ? (int) max.getX() + ", " + (int) max.getY() + ", " + (int) max.getZ()
+                                : (int) max.getX() + ", " + (int) max.getZ();
+                        messages.add(createLang.getMessage("CommandRegionCreateSuccessBounds", minStr, maxStr));
+                    }
                     commandContext.sendMessage(Message.join(messages.toArray(new Message[0])));
                 } catch (Exception e) {
                     e.printStackTrace();
-                    commandContext.sendMessage(Message.raw("Error happened while creating region! Send logs to author!").color(Color.RED));
+                    commandContext.sendMessage(manager.getLang().getMessage("CommandRegionCreateError"));
                 }
             });
         }

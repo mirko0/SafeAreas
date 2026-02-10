@@ -1,21 +1,17 @@
 package com.mcodelogic.safeareas;
 
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
-import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.util.Config;
 import com.mcodelogic.safeareas.commands.RegionCommand;
-import com.mcodelogic.safeareas.commands.TestCommand;
 import com.mcodelogic.safeareas.config.KConfig;
+import com.mcodelogic.safeareas.config.LangConfig;
+import com.mcodelogic.safeareas.lang.Lang;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import lombok.Getter;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-import java.awt.*;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,12 +20,16 @@ import java.util.logging.Logger;
 public class KMain extends JavaPlugin {
     public static final HytaleLogger LOGGER = HytaleLogger.getLogger();
     private final Config<KConfig> pluginConfiguration;
+    private final Config<LangConfig> langConfiguration;
+    @Getter
+    private Lang lang;
     @Getter
     private RegionManager manager;
 
     public KMain(@NonNullDecl JavaPluginInit init) {
         super(init);
         pluginConfiguration = this.withConfig(Constants.PLUGIN_NAME_FULL, KConfig.CODEC);
+        langConfiguration = this.withConfig(Constants.PLUGIN_NAME_FULL + "_lang", LangConfig.CODEC);
     }
 
     @Override
@@ -38,17 +38,22 @@ public class KMain extends JavaPlugin {
         super.setup();
         LOGGER.at(Level.INFO).log("Initializing " + Constants.PLUGIN_NAME_FULL + " Plugin...");
         LOGGER.at(Level.INFO).log("Saving Configuration");
+        lang = new Lang(null); // fallback if load fails
         try {
             if (!new File(getDataDirectory().resolve(Constants.PLUGIN_NAME_FULL + ".json").toUri()).exists()) {
                 pluginConfiguration.save();
             }
             pluginConfiguration.load();
+            if (!new File(getDataDirectory().resolve(Constants.PLUGIN_NAME_FULL + "_lang.json").toUri()).exists()) {
+                langConfiguration.save();
+            }
+            langConfiguration.load();
+            lang = new Lang(langConfiguration.get());
         } catch (Exception e) {
             Logger.getLogger(KMain.class.getName()).log(Level.SEVERE, "Error while loading configuration", e);
         }
         manager = new RegionManager(this);
         getCommandRegistry().registerCommand(new RegionCommand(manager));
-        getCommandRegistry().registerCommand(new TestCommand());
     }
 
     @Override
@@ -67,5 +72,15 @@ public class KMain extends JavaPlugin {
 
     public KConfig getConfiguration() {
         return pluginConfiguration.get();
+    }
+
+    /** Reload language config from disk and refresh the Lang instance. Call after editing _lang.json. */
+    public void reloadLang() {
+        try {
+            langConfiguration.load();
+            lang = new Lang(langConfiguration.get());
+        } catch (Exception e) {
+            Logger.getLogger(KMain.class.getName()).log(Level.SEVERE, "Error while reloading language config", e);
+        }
     }
 }

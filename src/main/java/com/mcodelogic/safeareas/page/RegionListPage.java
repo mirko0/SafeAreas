@@ -8,7 +8,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
-import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -47,7 +46,8 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
                 .add()
                 .append(new KeyedCodec<>("WorldFilter", Codec.STRING), (o, v) -> o.worldFilter = v, o -> o.worldFilter)
                 .add()
-                .append(new KeyedCodec<>("SearchQuery", Codec.STRING), (o, v) -> o.searchQuery = v, o -> o.searchQuery)
+                // NOTE: leading '@' is required for live UI value bindings (see UIExamples/CommandListPage.java)
+                .append(new KeyedCodec<>("@SearchQuery", Codec.STRING), (o, v) -> o.searchQuery = v, o -> o.searchQuery)
                 .add()
                 .build();
     }
@@ -67,7 +67,7 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
         commandBuilder.append("Pages/RegionListPage.ui");
 
         List<Region> regions = getFilteredAndSortedRegions();
-        commandBuilder.set("#RegionCount.Text", "REGIONS (" + regions.size() + ")");
+        commandBuilder.set("#RegionCount.Text", RegionManager.instance.getLang().get("UiRegionsCount", regions.size()));
         commandBuilder.set("#SearchInput.Value", searchFilter != null ? searchFilter : "");
 
         buildWorldFilterList(commandBuilder, eventBuilder);
@@ -78,7 +78,8 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
                 "#SearchInput",
                 new EventData()
                         .append("Action", "SearchFilter")
-                        .append("SearchQuery", "#SearchInput.Value")
+                        .append("@SearchQuery", "#SearchInput.Value"),
+                false
         );
 
         eventBuilder.addEventBinding(
@@ -113,7 +114,8 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
 
         Collection<World> worlds = Universe.get().getWorlds().values();
         int idx = 0;
-        commandBuilder.append("#WorldFilterList", "Pages/WorldFilterButton.ui");
+        boolean allActive = selectedWorldFilter == null;
+        commandBuilder.append("#WorldFilterList", allActive ? "Pages/WorldFilterButtonActive.ui" : "Pages/WorldFilterButton.ui");
         String allLabel = "All";
         commandBuilder.set("#WorldFilterList[0].Text", allLabel);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#WorldFilterList[0]",
@@ -122,7 +124,8 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
 
         for (World w : worlds) {
             String name = w.getName();
-            commandBuilder.append("#WorldFilterList", "Pages/WorldFilterButton.ui");
+            boolean active = name != null && name.equals(selectedWorldFilter);
+            commandBuilder.append("#WorldFilterList", active ? "Pages/WorldFilterButtonActive.ui" : "Pages/WorldFilterButton.ui");
             commandBuilder.set("#WorldFilterList[" + idx + "].Text", name);
             final String worldName = name;
             eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#WorldFilterList[" + idx + "]",
@@ -135,8 +138,9 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
         commandBuilder.clear("#RegionList");
 
         if (regions.isEmpty()) {
+            String emptyText = RegionManager.instance.getLang().get("UiRegionsEmpty").replace("\"", "\\\"");
             commandBuilder.appendInline("#RegionList",
-                    "Label { Text: \"No regions found\"; Anchor: (Height: 40); Style: (FontSize: 14, TextColor: #6e7da1); }"
+                    "Label { Text: \"" + emptyText + "\"; Anchor: (Height: 40); Style: (FontSize: 14, TextColor: #6e7da1); }"
             );
             return;
         }
@@ -144,13 +148,16 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
         int i = 0;
         for (Region region : regions) {
             String selector = "#RegionList[" + i + "]";
-            commandBuilder.append("#RegionList", "Pages/RegionEntry.ui");
+            String entryUi = (i % 2 == 0) ? "Pages/RegionEntry.ui" : "Pages/RegionEntryAlt.ui";
+            commandBuilder.append("#RegionList", entryUi);
 
             int flagCount = region.getFlags().size();
-            String typeAndFlags = region.getType().name() + " · " + flagCount + " flag" + (flagCount == 1 ? "" : "s") + " set";
+            String type = region.getType().name();
+            String flags = flagCount + " flag" + (flagCount == 1 ? "" : "s") + " set";
 
             commandBuilder.set(selector + " #RegionName.Text", region.getName());
-            commandBuilder.set(selector + " #RegionTypeAndFlags.Text", typeAndFlags);
+            commandBuilder.set(selector + " #RegionType.Text", type);
+            commandBuilder.set(selector + " #RegionFlags.Text", flags);
             commandBuilder.set(selector + " #RegionPriority.Text", String.valueOf(region.getPriority()));
             commandBuilder.set(selector + " #RegionWorld.Text", region.getWorldName());
 
@@ -200,7 +207,7 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
                     Region region = RegionManager.instance.getApi().getRegion(regionId);
                     if (region != null) {
                         RegionManager.instance.getApi().deleteRegion(regionId);
-                        playerRef.sendMessage(Message.raw("§cRegion \"" + region.getName() + "\" deleted."));
+                        playerRef.sendMessage(RegionManager.instance.getLang().getMessage("UiRegionDeleted", region.getName()));
                     }
                 }
                 refreshPage(ref, store);
@@ -233,9 +240,8 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
     private void refreshPage(Ref<EntityStore> ref, Store<EntityStore> store) {
         UICommandBuilder commandBuilder = new UICommandBuilder();
         UIEventBuilder eventBuilder = new UIEventBuilder();
-
         List<Region> regions = getFilteredAndSortedRegions();
-        commandBuilder.set("#RegionCount.Text", "REGIONS (" + regions.size() + ")");
+        commandBuilder.set("#RegionCount.Text", RegionManager.instance.getLang().get("UiRegionsCount", regions.size()));
         commandBuilder.set("#SearchInput.Value", searchFilter != null ? searchFilter : "");
         buildWorldFilterList(commandBuilder, eventBuilder);
         buildRegionList(commandBuilder, eventBuilder, regions);
