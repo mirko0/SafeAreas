@@ -22,7 +22,13 @@ public enum RegionFlag {
     FALL_DAMAGE(Boolean.class),
 
     GREETING(String.class),
-    FAREWELL(String.class);
+    FAREWELL(String.class),
+
+    GREETING_TITLE(String.class),
+    FAREWELL_TITLE(String.class),
+    GREETING_SUBTITLE(String.class),
+    FAREWELL_SUBTITLE(String.class),
+    ;
 
     private final Class<?> valueType;
 

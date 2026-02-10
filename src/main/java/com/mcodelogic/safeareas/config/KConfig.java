@@ -15,15 +15,9 @@ public class KConfig {
                     (config, extra) -> config.DefaultAdminPermission)
             .add()
 
-            .append(new KeyedCodec<Boolean>("DisableTitles", Codec.BOOLEAN),
-                    (config, value, extra) -> config.DisableTitles = value,
-                    (config, extra) -> config.DisableTitles)
-            .add()
-
             .build();
 
     private String DefaultAdminPermission = "safezones.admin";
-    private Boolean DisableTitles = false;
 
     public KConfig() {
     }

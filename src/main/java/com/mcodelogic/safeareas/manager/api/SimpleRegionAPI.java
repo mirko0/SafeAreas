@@ -1,13 +1,13 @@
-package com.mcodelogic.safeareas.manager;
+package com.mcodelogic.safeareas.manager.api;
 
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.mcodelogic.safeareas.api.IRegionAPI;
-import com.mcodelogic.safeareas.api.SelectionAreaFactory;
+import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.PlayerPositionCoords;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.XYZ;
 import com.mcodelogic.safeareas.model.enums.RegionType;
 import com.mcodelogic.safeareas.utils.RegionUtils;
+import com.mcodelogic.safeareas.utils.SelectionAreaFactory;
 import lombok.AllArgsConstructor;
 
 import java.util.*;

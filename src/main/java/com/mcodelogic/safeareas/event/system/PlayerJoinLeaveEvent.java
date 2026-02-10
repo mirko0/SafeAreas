@@ -1,4 +1,4 @@
-package com.mcodelogic.safeareas.event;
+package com.mcodelogic.safeareas.event.system;
 
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;

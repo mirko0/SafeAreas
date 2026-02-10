@@ -11,8 +11,8 @@ import java.util.Set;
 @Getter
 @Setter
 public class PlayerRegionState {
-    Set<Region> currentRegions = Set.of();
-    int lastBlockX, lastBlockY, lastBlockZ;
+    private Set<Region> currentRegions = Set.of();
+    private int lastBlockX, lastBlockY, lastBlockZ;
 
     public boolean isSameBlock(int x, int y, int z) {
         return x == lastBlockX && y == lastBlockY && z == lastBlockZ;

@@ -18,6 +18,7 @@ public class RegionCommand extends AbstractCommandCollection {
         this.addSubCommand(new RegionFlagsCommand());
         this.addSubCommand(new RegionPriorityCommand(manager));
         this.addSubCommand(new RegionInfoCommand(manager));
+        this.addSubCommand(new RegionUICommand(manager));
         this.requirePermission(KCommandUtil.permissionFromCommand("region"));
     }
 }

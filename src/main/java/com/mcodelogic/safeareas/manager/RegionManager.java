@@ -3,11 +3,11 @@ package com.mcodelogic.safeareas.manager;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.mcodelogic.safeareas.KMain;
-import com.mcodelogic.safeareas.api.IRegionAPI;
+import com.mcodelogic.safeareas.manager.api.IRegionAPI;
 import com.mcodelogic.safeareas.config.KConfig;
-import com.mcodelogic.safeareas.event.PlayerJoinLeaveEvent;
-import com.mcodelogic.safeareas.event.PlayerRegionTracker;
+import com.mcodelogic.safeareas.event.system.PlayerJoinLeaveEvent;
 import com.mcodelogic.safeareas.event.flag.*;
+import com.mcodelogic.safeareas.manager.api.SimpleRegionAPI;
 import com.mcodelogic.safeareas.model.PlayerPositionCoords;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.SelectionArea;
@@ -53,6 +53,7 @@ public class RegionManager{
         this.api = new SimpleRegionAPI(this);
         this.tracker = new PlayerRegionTracker(api);
         registerSystems(pluginMain);
+        registerEvents(pluginMain);
         pluginMain.getEntityStoreRegistry().registerSystem(tracker.getPlayerTickingSystem());
     }
 
@@ -79,7 +80,7 @@ public class RegionManager{
         }
     }
 
-    protected Region createInternal(
+    public Region createInternal(
             String wordName,
             String name,
             RegionType type,
@@ -98,18 +99,15 @@ public class RegionManager{
         return region;
     }
 
-    /**
-     * Registers a region in the manager by storing it in the internal maps and optionally saving it.
-     *
-     * This method adds the specified region to an internal map keyed by its unique identifier
-     * and to another map that groups regions by their world name. If the `save` parameter is true,
-     * the region is persisted using the selected storage mechanism.
-     *
-     * @param region The region to be registered. This includes its unique identifier, world name,
-     *               and other metadata.
-     * @param save   Whether to persist the region to the storage. If true, the region is saved
-     *               using the storage implementation; otherwise, it is only registered in memory.
-     */
+    /// Registers a region in the manager by storing it in the internal maps and optionally saving it.
+    /// This method adds the specified region to an internal map keyed by its unique identifier
+    /// and to another map that groups regions by their world name. If the `save` parameter is true,
+    /// the region is persisted using the selected storage mechanism.
+    ///
+    /// @param region The region to be registered. This includes its unique identifier, world name,
+    ///               and other metadata.
+    /// @param save   Whether to persist the region to the storage. If true, the region is saved
+    ///               using the storage implementation; otherwise, it is only registered in memory.
     protected void registerRegion(Region region, boolean save) {
         regionsById.put(region.getId(), region);
         regionsByWorld

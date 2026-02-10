@@ -1,0 +1,31 @@
+Group {
+  LayoutMode: Top;
+  Anchor: (Width: 800, Height: 600);
+  Background: #2a2a2a;
+  Group #GroupRoot {
+    LayoutMode: Top;
+    Anchor: (Width: 800, Height: 600, Left: 0, Top: 0);
+    Padding: (Full: 10);
+    Label #Title {
+      Style: (FontSize: 16, TextColor: #ffffff);
+      Text: "Safe Areas";
+    }
+    Group #Group {
+      LayoutMode: Top;
+      Anchor: (Width: 200, Height: 574, Left: 0, Top: 0);
+      Padding: (Full: 10);
+      Background: #181818;
+      Button #ButtonRoot {
+        LayoutMode: Left;
+        Anchor: (Width: 150, Height: 40, Left: 20, Top: 34, Bottom: 8);
+        Padding: (Full: 10);
+        Background: #ffffff;
+        Label #Label {
+          Anchor: (Left: 23, Top: 4);
+          Style: (FontSize: 16, TextColor: #000000);
+          Text: "Region Name";
+        }
+      }
+    }
+  }
+}

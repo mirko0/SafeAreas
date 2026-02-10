@@ -1,4 +1,4 @@
-package com.mcodelogic.safeareas.event;
+package com.mcodelogic.safeareas.utils;
 
 import com.mcodelogic.safeareas.model.FlagValue;
 import com.mcodelogic.safeareas.model.Region;

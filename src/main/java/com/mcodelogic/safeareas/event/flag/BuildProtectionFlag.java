@@ -14,12 +14,11 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
-import com.mcodelogic.safeareas.config.KConfig;
-import com.mcodelogic.safeareas.event.RegionFlagResolver;
+import com.mcodelogic.safeareas.KMain;
+import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
@@ -27,7 +26,6 @@ import com.mcodelogic.safeareas.utils.DefaultColors;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
-import java.awt.*;
 import java.util.Collections;
 import java.util.Set;
 
@@ -40,30 +38,35 @@ public class BuildProtectionFlag extends EntityEventSystem<EntityStore, PlaceBlo
 
     @Override
     public void handle(int index, @NonNullDecl ArchetypeChunk<EntityStore> archetypeChunk, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> commandBuffer, @NonNullDecl PlaceBlockEvent event) {
-        if (event.isCancelled()) return;
+        try {
+            if (event.isCancelled()) return;
 
-        Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
-        Player player = store.getComponent(ref, Player.getComponentType());
-        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-        if (player == null || playerRef == null) return;
+            Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
+            Player player = store.getComponent(ref, Player.getComponentType());
+            PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+            if (player == null || playerRef == null) return;
 
 
-        Vector3i targetBlock = event.getTargetBlock();
-        Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(player.getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
+            Vector3i targetBlock = event.getTargetBlock();
+            Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(player.getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
 
-        boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
+            boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
 
-        if (!canBreak && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
-            event.setCancelled(true);
+            if (!canBreak && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+                event.setCancelled(true);
 
-            boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
-            if (!canNotify) return;
+                boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+                if (!canNotify) return;
 
-            var primaryMessage = Message.raw("Block Placing!").color(DefaultColors.RED.getColor());
-            var secondaryMessage = Message.raw("You cannot place blocks in this region!").color(DefaultColors.GRAY.getColor());
-            String itemid = event.getItemInHand() != null ? event.getItemInHand().getItem().getId() : "Wood_Beech_Trunk";
-            var icon = new ItemStack(itemid, 1).toPacket();
-            NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
+                var primaryMessage = Message.raw("Block Placing!").color(DefaultColors.RED.getColor());
+                var secondaryMessage = Message.raw("You cannot place blocks in this region!").color(DefaultColors.GRAY.getColor());
+                String itemid = event.getItemInHand() != null ? event.getItemInHand().getItem().getId() : "Wood_Beech_Trunk";
+                var icon = new ItemStack(itemid, 1).toPacket();
+                NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
+            }
+        } catch (Exception e) {
+            KMain.LOGGER.atWarning().log("Error happened while checking block build protection!");
+            e.printStackTrace();
         }
     }
 

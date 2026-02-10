@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.mcodelogic.safeareas'
-version = '1.0.8'
+version = '1.0.9'
 
 repositories {
     mavenCentral()
@@ -21,4 +21,43 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.JavaExec
+
+// 1. Task to copy the mod to the server
+// Ensure the jar is built, then copied
+tasks.register('installMod', Copy) {
+    group = 'hytale'
+    description = 'Compiles and copies the JAR to the server mods folder.'
+
+    // This triggers the compilation ('jar' task) automatically
+    from tasks.named('jar')
+
+    // Targets the Server/mods subfolder specifically
+    into layout.projectDirectory.dir('E:\\Java\\Hytale\\HytaleServer\\Server\\mods')
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+// The main task to run everything in sequence
+tasks.register('runHytaleServer', Exec) {
+    group = 'hytale'
+    description = 'Compiles mod, installs it, and runs start.bat.'
+
+    // This creates the chain: jar -> installMod -> runHytaleServer [cite: 9]
+    dependsOn tasks.named('installMod')
+
+    // Root directory where start.bat and Assets.zip reside
+    workingDir = file('E:\\Java\\Hytale\\HytaleServer')
+
+    // Executes your batch script to handle AOT and staged updates [cite: 1, 4]
+    commandLine 'cmd', '/c', 'start.bat'
+
+    // Keeps the terminal open for server commands (like 'stop') [cite: 9]
+    standardInput = System.in
+
+    // Optional: Prevents Gradle from failing if the server exits with a non-zero code
+    ignoreExitValue = true
 }

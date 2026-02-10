@@ -1,4 +1,4 @@
-package com.mcodelogic.safeareas.api;
+package com.mcodelogic.safeareas.utils;
 
 import com.mcodelogic.safeareas.model.SelectionArea;
 

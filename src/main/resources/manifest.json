@@ -1,7 +1,7 @@
 {
   "Group": "mirko0",
   "Name": "SafeAreas",
-  "Version": "1.0.8",
+  "Version": "1.0.9",
   "Description": "SafeAreas makes it easy to create protected areas on your server, giving staff full control over PvP, building, and player interactions with simple, clear rules.",
   "Authors": [
     {
@@ -10,5 +10,6 @@
   ],
   "Website": "https//mcodelogic.com",
   "Main": "com.mcodelogic.safeareas.KMain",
-  "ServerVersion": "*"
+  "ServerVersion": "*",
+  "IncludesAssetPack": true
 }

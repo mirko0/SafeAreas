@@ -17,7 +17,8 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
-import com.mcodelogic.safeareas.event.RegionFlagResolver;
+import com.mcodelogic.safeareas.KMain;
+import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
@@ -38,30 +39,33 @@ public class InteractProtectionFlag extends EntityEventSystem<EntityStore, UseBl
                        @NonNullDecl Store<EntityStore> store,
                        @NonNullDecl CommandBuffer<EntityStore> commandBuffer,
                        @NonNullDecl UseBlockEvent.Pre event) {
-        if (event.isCancelled()) return;
-        Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
-        Player player = store.getComponent(ref, Player.getComponentType());
-        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-        if (player == null || playerRef == null) return;
+        try {
+            if (event.isCancelled()) return;
+            Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
+            Player player = store.getComponent(ref, Player.getComponentType());
+            PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+            if (player == null || playerRef == null) return;
 
-        Vector3i targetBlock = event.getTargetBlock();
-        Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(player.getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
+            Vector3i targetBlock = event.getTargetBlock();
+            Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(player.getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
 
-        boolean canUse = RegionFlagResolver.resolve(regions, RegionFlag.INTERACT, true);
+            boolean canUse = RegionFlagResolver.resolve(regions, RegionFlag.INTERACT, true);
 
-        if (!canUse && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
-            event.setCancelled(true);
-            boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
-            if (!canNotify) return;
+            if (!canUse && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+                event.setCancelled(true);
+                boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+                if (!canNotify) return;
 
-            var primaryMessage = Message.raw("Interaction Disabled!").color(DefaultColors.RED.getColor());
-            var secondaryMessage = Message.raw("You cannot interact in this region!").color(DefaultColors.GRAY.getColor());
-            var icon = new ItemStack("Furniture_Crude_Chest_Small", 1).toPacket();
+                var primaryMessage = Message.raw("Interaction Disabled!").color(DefaultColors.RED.getColor());
+                var secondaryMessage = Message.raw("You cannot interact in this region!").color(DefaultColors.GRAY.getColor());
+                var icon = new ItemStack("Furniture_Crude_Chest_Small", 1).toPacket();
 
-            NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
+                NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
+            }
+        } catch (Exception e) {
+            KMain.LOGGER.atWarning().log("Error happened while checking interaction protection!");
+            e.printStackTrace();
         }
-
-
     }
 
     @NullableDecl

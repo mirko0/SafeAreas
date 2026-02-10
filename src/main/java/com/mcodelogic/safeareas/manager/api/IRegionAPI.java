@@ -1,4 +1,4 @@
-package com.mcodelogic.safeareas.api;
+package com.mcodelogic.safeareas.manager.api;
 
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.mcodelogic.safeareas.model.Region;
