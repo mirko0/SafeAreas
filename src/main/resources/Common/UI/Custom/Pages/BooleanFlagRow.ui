@@ -1,0 +1,59 @@
+Group {
+  LayoutMode: Left;
+  Anchor: (Height: 36);
+  Background: #1a2433(0.6);
+  Padding: (Left: 12, Right: 12, Top: 6, Bottom: 6);
+
+  Label #FlagLabel {
+    FlexWeight: 1;
+    Text: "FlagName";
+    Style: (FontSize: 12, TextColor: #ffffff);
+  }
+
+  Label #StateLabel {
+    Text: "[ NULL ]";
+    Anchor: (Width: 72, Height: 24);
+    Style: (FontSize: 11, TextColor: #96a9be, RenderBold: true);
+  }
+
+  Group { Anchor: (Width: 5); }
+
+
+  TextButton #BtnRemove {
+    Text: "REMOVE";
+    Anchor: (Width: 68, Height: 26);
+    Style: TextButtonStyle(
+      Default: (Background: #3a7bd5, LabelStyle: (FontSize: 10, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+      Hovered: (Background: #4a8be5, LabelStyle: (FontSize: 10, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+      Pressed: (Background: #2a6bc5, LabelStyle: (FontSize: 10, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center))
+    );
+  }
+
+  Group { Anchor: (Width: 5); }
+
+
+  TextButton #BtnAllow {
+    Text: "ALLOW";
+    Anchor: (Width: 60, Height: 26);
+    Style: TextButtonStyle(
+      Default: (Background: #4aff7f, LabelStyle: (FontSize: 10, TextColor: #000000, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+      Hovered: (Background: #5aff8f, LabelStyle: (FontSize: 10, TextColor: #000000, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+      Pressed: (Background: #3aef6f, LabelStyle: (FontSize: 10, TextColor: #000000, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center))
+    );
+  }
+
+  Group { Anchor: (Width: 5); }
+
+  TextButton #BtnDeny {
+    Text: "DENY";
+    Anchor: (Width: 52, Height: 26);
+    Style: TextButtonStyle(
+      Default: (Background: #ff6b6b, LabelStyle: (FontSize: 10, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+      Hovered: (Background: #ff7b7b, LabelStyle: (FontSize: 10, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center)),
+      Pressed: (Background: #ff5b5b, LabelStyle: (FontSize: 10, TextColor: #ffffff, RenderBold: true, VerticalAlignment: Center, HorizontalAlignment: Center))
+    );
+  }
+
+  Group { Anchor: (Width: 5); }
+
+}

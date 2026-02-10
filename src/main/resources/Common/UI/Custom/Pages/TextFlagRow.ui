@@ -1,0 +1,20 @@
+Group {
+  LayoutMode: Top;
+  Anchor: (Height: 60);
+  Background: #1a2433(0.6);
+  Padding: (Left: 12, Right: 12, Top: 8, Bottom: 8);
+
+  Label #FlagLabel {
+    Text: "FlagName";
+    Anchor: (Height: 18);
+    Style: (FontSize: 11, TextColor: #96a9be);
+  }
+
+  TextField #Input {
+    Anchor: (Height: 28);
+    Value: "";
+    PlaceholderText: "Enter value...";
+    Style: (FontSize: 12, TextColor: #ffffff);
+    Background: #2b3542;
+  }
+}

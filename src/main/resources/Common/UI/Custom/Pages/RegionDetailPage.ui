@@ -1,0 +1,93 @@
+$Common = "../Common.ui";
+
+$Common.@PageOverlay {}
+
+$Common.@Container {
+  Anchor: (Width: 720, Height: 660);
+
+  #Title {
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 38);
+
+      Label #RegionTitle {
+        Text: "REGION: Loading...";
+        FlexWeight: 1;
+        Style: (FontSize: 15, TextColor: #b4c8c9, RenderBold: true, RenderUppercase: true);
+      }
+
+      Label #RegionTypeLabel {
+        Text: "GLOBAL";
+        Anchor: (Width: 100);
+        Style: (FontSize: 13, TextColor: #7a9cc6, RenderBold: true);
+      }
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+
+    Group #BooleanFlagsSection {
+      LayoutMode: Top;
+      Label {
+        Text: "BOOLEAN FLAGS";
+        Style: (RenderBold: true, FontSize: 15, TextColor: #afc2c3);
+        Anchor: (Height: 35);
+      }
+      Group { Background: #393426(0.5); Anchor: (Height: 1); }
+    }
+
+    Group { Anchor: (Height: 6); }
+
+    Group #BooleanFlagsList {
+      Anchor: (Height: 280);
+      LayoutMode: TopScrolling;
+      Padding: (Full: 10);
+      ScrollbarStyle: $Common.@DefaultScrollbarStyle;
+    }
+
+    Group { Anchor: (Height: 12); }
+
+    Group #TextFlagsSection {
+      LayoutMode: Top;
+      Label {
+        Text: "TEXT FLAGS";
+        Style: (RenderBold: true, FontSize: 15, TextColor: #afc2c3);
+        Anchor: (Height: 35);
+      }
+      Group { Background: #393426(0.5); Anchor: (Height: 1); }
+    }
+
+    Group { Anchor: (Height: 6); }
+
+    Group #TextFlagsList {
+      Anchor: (Height: 140);
+      LayoutMode: TopScrolling;
+      Padding: (Full: 10);
+      ScrollbarStyle: $Common.@DefaultScrollbarStyle;
+    }
+
+    Group { Anchor: (Height: 12); }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 40);
+
+      Group { FlexWeight: 1; }
+
+      $Common.@TertiaryTextButton #BackButton {
+        @Anchor = (Width: 110, Height: 36);
+        Text: "BACK";
+      }
+
+      Group { Anchor: (Width: 10); }
+
+      $Common.@TextButton #SaveButton {
+        @Anchor = (Width: 110, Height: 36);
+        Text: "SAVE";
+      }
+
+      Group { FlexWeight: 1; }
+    }
+  }
+}

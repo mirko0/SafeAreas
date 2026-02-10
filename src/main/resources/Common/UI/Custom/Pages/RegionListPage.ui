@@ -1,0 +1,84 @@
+$Common = "../Common.ui";
+
+$Common.@PageOverlay {}
+
+$Common.@Container {
+  Anchor: (Width: 680, Height: 620);
+  @CloseButton = true;
+
+  #Title {
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 38);
+
+      $Common.@Title {
+        @Text = "SAFE AREAS - REGION MANAGER";
+        @Alignment = Start;
+      }
+
+      Group { FlexWeight: 1; }
+
+      Group #HeaderSearchWrapper {
+        Anchor: (Width: 200);
+        TextField #SearchInput {
+          Anchor: (Height: 30);
+          PlaceholderText: "Search regions...";
+          Style: $Common.@DefaultInputFieldStyle;
+          PlaceholderStyle: $Common.@DefaultInputFieldPlaceholderStyle;
+          Background: $Common.@InputBoxBackground;
+          Padding: (Horizontal: 12);
+        }
+      }
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 28);
+
+      Label #RegionCount {
+        Text: "REGIONS (0)";
+        Anchor: (Height: 20);
+        Style: (FontSize: 11, TextColor: #878e9c, LetterSpacing: 2);
+      }
+
+      Group { FlexWeight: 1; }
+
+      $Common.@TertiaryTextButton #RefreshButton {
+        @Anchor = (Height: 28);
+        Anchor: (Width: 90, Height: 28);
+        Text: "REFRESH";
+      }
+    }
+
+    Group { Anchor: (Height: 6); }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 28);
+
+      Label {
+        Text: "World:";
+        Anchor: (Width: 50, Height: 24);
+        Style: (FontSize: 12, TextColor: #96a9be, RenderBold: true);
+      }
+
+      Group #WorldFilterList {
+        LayoutMode: Left;
+        Anchor: (Height: 28);
+      }
+    }
+
+    Group { Anchor: (Height: 8); }
+
+    Group #RegionList {
+      Anchor: (Height: 460);
+      LayoutMode: TopScrolling;
+      Padding: (Full: 8);
+      ScrollbarStyle: $Common.@DefaultScrollbarStyle;
+    }
+  }
+}

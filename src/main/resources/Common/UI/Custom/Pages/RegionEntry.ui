@@ -1,0 +1,61 @@
+$Common = "../Common.ui";
+
+Button #RegionButton {
+  Anchor: (Height: 70);
+  Padding: (Left: 16, Right: 16, Top: 10, Bottom: 10);
+
+  Group {
+    LayoutMode: Top;
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 24);
+
+      Label #RegionName {
+        Text: "RegionName";
+        FlexWeight: 1;
+        Style: (FontSize: 15, TextColor: #ffffff, RenderBold: true);
+      }
+
+      Label #RegionTypeAndFlags {
+        Text: "GLOBAL · 0 flags set";
+        Anchor: (Width: 140);
+        Style: (FontSize: 10, TextColor: #96a9be);
+      }
+
+      Group { FlexWeight: 1; }
+
+      $Common.@CancelTextButton #DeleteBtn {
+        @Anchor = (Width: 70, Height: 26);
+        Text: "Delete";
+      }
+    }
+
+    Group { Anchor: (Height: 4); }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 18);
+
+      Label {
+        Text: "Priority:";
+        Anchor: (Width: 60);
+        Style: (FontSize: 10, TextColor: #6e7da1);
+      }
+
+      Label #RegionPriority {
+        Text: "0";
+        Anchor: (Width: 40);
+        Style: (FontSize: 10, TextColor: #4aff7f, RenderBold: true);
+      }
+    }
+
+    Group { Anchor: (Height: 2); }
+
+    Label #RegionWorld {
+      Text: "world_name";
+      Anchor: (Height: 14);
+      Style: (FontSize: 9, TextColor: #4a5568);
+    }
+  }
+}
