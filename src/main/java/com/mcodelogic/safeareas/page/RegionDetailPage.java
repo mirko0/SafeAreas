@@ -200,7 +200,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
                         }
                     }
                 }
-                refreshDetailPage(ref, store);
+                // Do not refresh: input already has the value via @PriorityValue binding; refreshing would clear/rebuild and steal focus
                 break;
 
             case "IncPriority":
@@ -245,7 +245,7 @@ public class RegionDetailPage extends InteractiveCustomUIPage<RegionDetailPage.R
                     RegionFlag flag = RegionFlag.valueOf(data.flagName);
                     pendingChanges.put(flag, data.flagValue);
                 }
-                refreshDetailPage(ref, store);
+                // Do not refresh: input already has the value via @FlagValue binding; refreshing would clear/rebuild list and steal focus (like RegionListPage search)
                 break;
 
             case "Save":
