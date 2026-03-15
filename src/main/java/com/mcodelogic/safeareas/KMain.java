@@ -1,12 +1,15 @@
 package com.mcodelogic.safeareas;
 
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.plugin.registry.CodecMapRegistry;
 import com.hypixel.hytale.server.core.util.Config;
 import com.mcodelogic.safeareas.commands.RegionCommand;
 import com.mcodelogic.safeareas.config.KConfig;
 import com.mcodelogic.safeareas.config.LangConfig;
+import com.mcodelogic.safeareas.interaction.*;
 import com.mcodelogic.safeareas.lang.Lang;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import lombok.Getter;
@@ -34,7 +37,6 @@ public class KMain extends JavaPlugin {
 
     @Override
     protected void setup() {
-
         super.setup();
         LOGGER.at(Level.INFO).log("Initializing " + Constants.PLUGIN_NAME_FULL + " Plugin...");
         LOGGER.at(Level.INFO).log("Saving Configuration");
@@ -54,6 +56,15 @@ public class KMain extends JavaPlugin {
         }
         manager = new RegionManager(this);
         getCommandRegistry().registerCommand(new RegionCommand(manager));
+
+        CodecMapRegistry.Assets<Interaction, ?> interactionRegistry = getCodecRegistry(Interaction.CODEC);
+
+        interactionRegistry.register("UseBlock", UseBlockInteraction.class, UseBlockInteraction.CUSTOM_CODEC);
+        interactionRegistry.register("CycleBlockGroup", CycleBlockInteraction.class, CycleBlockInteraction.CUSTOM_CODEC);
+        interactionRegistry.register("PlaceFluid", PlaceBucketInteraction.class, PlaceBucketInteraction.CUSTOM_CODEC);
+        interactionRegistry.register("RefillContainer", PickupBucketInteraction.class, PickupBucketInteraction.CUSTOM_CODEC);
+        interactionRegistry.register("ChangeBlock", BlockChangeInteraction.class, BlockChangeInteraction.CUSTOM_CODEC);
+        interactionRegistry.register("HarvestCrop", HarvestCropInteraction.class, HarvestCropInteraction.CUSTOM_CODEC);
     }
 
     @Override

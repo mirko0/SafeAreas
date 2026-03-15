@@ -9,10 +9,10 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.mcodelogic.safeareas.KMain;
-import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
+import com.mcodelogic.safeareas.utils.RegionFlagResolver;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -41,7 +41,6 @@ public class MobSpawnProtectionFlag extends EntityTickingSystem<EntityStore> {
 
             Boolean canSpawn = RegionFlagResolver.resolve(regions, RegionFlag.MOB_SPAWN, true);
             boolean canIgnoreFrozen = RegionFlagResolver.resolve(regions, RegionFlag.MOB_SPAWN_IGNORE_FROZEN, true);
-
 
             if (!canSpawn) {
                 if (canIgnoreFrozen && isFrozen) return;
