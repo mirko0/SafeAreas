@@ -8,6 +8,10 @@ public class RegionCommand extends AbstractCommandCollection {
     private final RegionManager manager;
     public RegionCommand(RegionManager manager) {
         super("region", manager.getLang().get("CommandDescRegion"));
+        addAliases("rg");
+        addAliases("regions");
+        addAliases("safearea");
+        addAliases("safeareas");
         this.manager = manager;
         this.addSubCommand(new RegionListCommand(manager));
         this.addSubCommand(new RegionRemoveFlagCommand(manager));
@@ -16,6 +20,7 @@ public class RegionCommand extends AbstractCommandCollection {
         this.addSubCommand(new RegionDeleteCommand(manager));
         this.addSubCommand(new RegionFlagCommand(manager));
         this.addSubCommand(new RegionFlagsCommand());
+        this.addSubCommand(new RegionDebugCommand(manager));
         this.addSubCommand(new RegionPriorityCommand(manager));
         this.addSubCommand(new RegionInfoCommand(manager));
         this.addSubCommand(new RegionUICommand(manager));

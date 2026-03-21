@@ -13,12 +13,18 @@ import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
 import com.mcodelogic.safeareas.utils.RegionFlagResolver;
+import com.mcodelogic.safeareas.utils.SafeAreasDebug;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.Set;
 
 public class MobSpawnProtectionFlag extends EntityTickingSystem<EntityStore> {
+
+    private static void debug(String message) {
+        SafeAreasDebug.log("MobSpawnProtectionFlag", message);
+    }
+
     @Override
     public void tick(float v,
                      int index,
@@ -31,9 +37,11 @@ public class MobSpawnProtectionFlag extends EntityTickingSystem<EntityStore> {
             NPCEntity npcComponent = archetypeChunk.getComponent(index, NPCEntity.getComponentType());
             TransformComponent transformComponent = archetypeChunk.getComponent(index, TransformComponent.getComponentType());
 
-            boolean isFrozen = archetypeChunk.getComponent(index, Frozen.getComponentType()) != null;
 
             if (npcComponent == null || transformComponent == null) {
+                debug("Skipping entity because required components were missing. ref=" + entityRef
+                        + ", hasNpc=" + (npcComponent != null)
+                        + ", hasTransform=" + (transformComponent != null));
                 return;
             }
             Vector3i targetBlock = transformComponent.getPosition().toVector3i();
@@ -41,17 +49,41 @@ public class MobSpawnProtectionFlag extends EntityTickingSystem<EntityStore> {
 
             Boolean canSpawn = RegionFlagResolver.resolve(regions, RegionFlag.MOB_SPAWN, true);
             boolean canIgnoreFrozen = RegionFlagResolver.resolve(regions, RegionFlag.MOB_SPAWN_IGNORE_FROZEN, true);
+            boolean isFrozen = archetypeChunk.getComponent(index, Frozen.getComponentType()) != null;
+            String roleName = npcComponent.getRoleName();
+
+            debug("Evaluating mob spawn. ref=" + entityRef
+                    + ", role=" + roleName
+                    + ", position=" + targetBlock
+                    + ", regions=" + regions
+                    + ", canSpawn=" + canSpawn
+                    + ", canIgnoreFrozen=" + canIgnoreFrozen
+                    + ", isFrozen=" + isFrozen);
+
+            if (canIgnoreFrozen && isFrozen) {
+                canSpawn = true;
+                debug("Allowing spawn because entity is frozen and MOB_SPAWN_IGNORE_FROZEN is enabled. ref=" + entityRef);
+            }
+
+            if (roleName != null && (roleName.startsWith("HyCitizens") || roleName.startsWith("Citizens"))) {
+                canSpawn = true;
+                debug("Allowing spawn because entity role is exempt from mob spawn protection. ref=" + entityRef + ", role=" + roleName);
+            }
 
             if (!canSpawn) {
-                if (canIgnoreFrozen && isFrozen) return;
+                debug("Removing entity because mob spawn is blocked in this region. ref=" + entityRef
+                        + ", role=" + roleName
+                        + ", position=" + targetBlock);
                 if (entityRef.isValid()) {
                     commandBuffer.removeEntity(entityRef, RemoveReason.REMOVE);
-//                String npcType = npcType(npcComponent.getRoleName());
-//                HytaleLogger.getLogger().atInfo().log("Safe Areas> Blocked NPC(" + npcType + ":" + npcComponent.getRoleName() + ") spawn in region at xyz: " + targetBlock.toString());
                     return;
                 }
                 return;
             }
+
+            debug("Allowing entity spawn after region checks. ref=" + entityRef
+                    + ", role=" + roleName
+                    + ", position=" + targetBlock);
         } catch (Exception e) {
             KMain.LOGGER.atWarning().log("Error happened while checking mob spawn protection!");
             e.printStackTrace();

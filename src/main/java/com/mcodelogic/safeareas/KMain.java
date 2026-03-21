@@ -16,6 +16,8 @@ import lombok.Getter;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,9 +27,12 @@ public class KMain extends JavaPlugin {
     private final Config<KConfig> pluginConfiguration;
     private final Config<LangConfig> langConfiguration;
     @Getter
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    @Getter
     private Lang lang;
     @Getter
     private RegionManager manager;
+
 
     public KMain(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -64,7 +69,7 @@ public class KMain extends JavaPlugin {
         interactionRegistry.register("PlaceFluid", PlaceBucketInteraction.class, PlaceBucketInteraction.CUSTOM_CODEC);
         interactionRegistry.register("RefillContainer", PickupBucketInteraction.class, PickupBucketInteraction.CUSTOM_CODEC);
         interactionRegistry.register("ChangeBlock", BlockChangeInteraction.class, BlockChangeInteraction.CUSTOM_CODEC);
-        interactionRegistry.register("HarvestCrop", HarvestCropInteraction.class, HarvestCropInteraction.CUSTOM_CODEC);
+        interactionRegistry.register("HarvestCrop", CropHarvestInteraction.class, CropHarvestInteraction.CUSTOM_CODEC);
     }
 
     @Override
@@ -85,7 +90,9 @@ public class KMain extends JavaPlugin {
         return pluginConfiguration.get();
     }
 
-    /** Reload language config from disk and refresh the Lang instance. Call after editing _lang.json. */
+    /**
+     * Reload language config from disk and refresh the Lang instance. Call after editing _lang.json.
+     */
     public void reloadLang() {
         try {
             langConfiguration.load();

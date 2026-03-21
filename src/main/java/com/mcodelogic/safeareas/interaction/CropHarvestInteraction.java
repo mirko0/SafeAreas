@@ -1,5 +1,6 @@
 package com.mcodelogic.safeareas.interaction;
 
+import com.hypixel.hytale.builtin.adventure.farming.interactions.HarvestCropInteraction;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -21,17 +22,20 @@ import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
 import com.mcodelogic.safeareas.utils.RegionFlagResolver;
+import com.mcodelogic.safeareas.utils.SafeAreasDebug;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.Set;
 
-public class HarvestCropInteraction extends com.hypixel.hytale.builtin.adventure.farming.interactions.HarvestCropInteraction {
+public class CropHarvestInteraction extends HarvestCropInteraction {
 
-    public static final BuilderCodec<HarvestCropInteraction> CUSTOM_CODEC = BuilderCodec.builder(HarvestCropInteraction.class, HarvestCropInteraction::new, com.hypixel.hytale.builtin.adventure.farming.interactions.HarvestCropInteraction.CODEC).build();
+    public static final BuilderCodec<CropHarvestInteraction> CUSTOM_CODEC = BuilderCodec.builder(CropHarvestInteraction.class, CropHarvestInteraction::new, HarvestCropInteraction.CODEC).build();
 
 
     public void handle(PlayerRef playerRef, InteractionContext context, ItemStack heldItemStack, boolean canNotify) {
+        SafeAreasDebug.log("CropHarvestInteraction", "Blocking harvest interaction. canNotify=" + canNotify
+                + ", heldItem=" + (heldItemStack != null ? heldItemStack.getItem().getId() : "null"));
         fail(context);
         if (!canNotify) return;
 
@@ -62,15 +66,24 @@ public class HarvestCropInteraction extends com.hypixel.hytale.builtin.adventure
         if (playerRef == null) super.interactWithBlock(world, commandBuffer, type, context, heldItemStack, targetBlock, cooldownHandler);
 
         Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(store.getExternalData().getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
-        boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
+        boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.INTERACT, true);
         boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+        boolean isAdmin = player != null && player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission());
 
-        // User can not interact in this region
-        if (!canBreak && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+        SafeAreasDebug.log("CropHarvestInteraction", "interactWithBlock type=" + type
+                + ", target=" + targetBlock
+                + ", regions=" + regions
+                + ", canInteract=" + canBreak
+                + ", canNotify=" + canNotify
+                + ", adminBypass=" + isAdmin);
+
+        // User ca n not interact in this region
+        if (!canBreak && !isAdmin) {
             handle(playerRef, context, heldItemStack, canNotify);
             return;
         }
 
+        SafeAreasDebug.log("CropHarvestInteraction", "Allowing harvest interaction at " + targetBlock);
         super.interactWithBlock(world, commandBuffer, type, context, heldItemStack, targetBlock, cooldownHandler);
     }
 
@@ -85,14 +98,23 @@ public class HarvestCropInteraction extends com.hypixel.hytale.builtin.adventure
             super.simulateInteractWithBlock(type, context, itemInHand, world, targetBlock);
 
         Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(store.getExternalData().getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
-        boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
+        boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.INTERACT, true);
         boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+        boolean isAdmin = player != null && player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission());
+
+        SafeAreasDebug.log("CropHarvestInteraction", "simulateInteractWithBlock type=" + type
+                + ", target=" + targetBlock
+                + ", regions=" + regions
+                + ", canInteract=" + canBreak
+                + ", canNotify=" + canNotify
+                + ", adminBypass=" + isAdmin);
 
         // User can not interact in this region
-        if (!canBreak && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+        if (!canBreak && !isAdmin) {
             handle(playerRef, context, itemInHand, canNotify);
             return;
         }
+        SafeAreasDebug.log("CropHarvestInteraction", "Allowing simulated harvest interaction at " + targetBlock);
         super.simulateInteractWithBlock(type, context, itemInHand, world, targetBlock);
 
     }

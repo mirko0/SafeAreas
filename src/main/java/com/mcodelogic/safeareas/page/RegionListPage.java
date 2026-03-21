@@ -155,7 +155,8 @@ public class RegionListPage extends InteractiveCustomUIPage<RegionListPage.Regio
             String type = region.getType().name();
             String flags = flagCount + " flag" + (flagCount == 1 ? "" : "s") + " set";
 
-            commandBuilder.set(selector + " #RegionName.Text", region.getName());
+            String rgName = region.getName().length() > 12 ? region.getName().substring(0, 12) + "..." : region.getName();
+            commandBuilder.set(selector + " #RegionName.Text", rgName);
             commandBuilder.set(selector + " #RegionType.Text", type);
             commandBuilder.set(selector + " #RegionFlags.Text", flags);
             commandBuilder.set(selector + " #RegionPriority.Text", String.valueOf(region.getPriority()));

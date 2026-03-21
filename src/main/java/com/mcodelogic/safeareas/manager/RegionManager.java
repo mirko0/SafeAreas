@@ -74,7 +74,8 @@ public class RegionManager{
         main.getEntityStoreRegistry().registerSystem(new DamageProtectionFlag());
         main.getEntityStoreRegistry().registerSystem(new DropItemProtectionFlag());
         main.getEntityStoreRegistry().registerSystem(new InteractProtectionFlag());
-        main.getEntityStoreRegistry().registerSystem(new MobSpawnProtectionFlag());
+//        main.getEntityStoreRegistry().registerSystem(new MobSpawnProtectionFlag());
+        main.getEntityStoreRegistry().registerSystem(new MobSpawnProtectionFlagVTwo());
         main.getEntityStoreRegistry().registerSystem(new GlobalBlockDamageProtectionFlag());
         main.getEntityStoreRegistry().registerSystem(new GlobalBreakProtectionFlag());
     }

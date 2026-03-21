@@ -22,6 +22,7 @@ import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
 import com.mcodelogic.safeareas.utils.RegionFlagResolver;
+import com.mcodelogic.safeareas.utils.SafeAreasDebug;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -32,6 +33,8 @@ public class PlaceBucketInteraction extends PlaceFluidInteraction {
     public static final BuilderCodec<PlaceBucketInteraction> CUSTOM_CODEC = BuilderCodec.builder(PlaceBucketInteraction.class, PlaceBucketInteraction::new, PlaceFluidInteraction.CODEC).build();
 
     public void handle(PlayerRef playerRef, InteractionContext context, ItemStack heldItemStack, boolean canNotify) {
+        SafeAreasDebug.log("PlaceBucketInteraction", "Blocking place fluid interaction. canNotify=" + canNotify
+                + ", heldItem=" + (heldItemStack != null ? heldItemStack.getItem().getId() : "null"));
         fail(context);
         if (!canNotify) return;
 
@@ -61,14 +64,23 @@ public class PlaceBucketInteraction extends PlaceFluidInteraction {
         Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(store.getExternalData().getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
         boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
         boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+        boolean isAdmin = player != null && player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission());
+
+        SafeAreasDebug.log("PlaceBucketInteraction", "interactWithBlock type=" + type
+                + ", target=" + targetBlock
+                + ", regions=" + regions
+                + ", canBuild=" + canBreak
+                + ", canNotify=" + canNotify
+                + ", adminBypass=" + isAdmin);
 
         // User can not interact in this region
-        if (!canBreak && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+        if (!canBreak && !isAdmin) {
             handle(playerRef, context, itemInhand, canNotify);
             return;
         }
 
         // allow user to continue with interaction.
+        SafeAreasDebug.log("PlaceBucketInteraction", "Allowing place fluid interaction at " + targetBlock);
         super.interactWithBlock(world, commandBuffer, type, context, itemInhand, targetBlock, cooldownHandler);
     }
 
@@ -82,14 +94,23 @@ public class PlaceBucketInteraction extends PlaceFluidInteraction {
         Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(store.getExternalData().getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
         boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
         boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+        boolean isAdmin = player != null && player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission());
+
+        SafeAreasDebug.log("PlaceBucketInteraction", "simulateInteractWithBlock type=" + type
+                + ", target=" + targetBlock
+                + ", regions=" + regions
+                + ", canBuild=" + canBreak
+                + ", canNotify=" + canNotify
+                + ", adminBypass=" + isAdmin);
 
         // User can interact
-        if (!canBreak && !player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+        if (!canBreak && !isAdmin) {
             handle(playerRef, context, itemInHand, canNotify);
             return;
         }
 
         //Allow user to contineu with interaction.
+        SafeAreasDebug.log("PlaceBucketInteraction", "Allowing simulated place fluid interaction at " + targetBlock);
         super.simulateInteractWithBlock(type, context, itemInHand, world, targetBlock);
     }
 

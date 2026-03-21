@@ -21,6 +21,7 @@ import com.mcodelogic.safeareas.manager.RegionManager;
 import com.mcodelogic.safeareas.model.Region;
 import com.mcodelogic.safeareas.model.enums.RegionFlag;
 import com.mcodelogic.safeareas.utils.RegionFlagResolver;
+import com.mcodelogic.safeareas.utils.SafeAreasDebug;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -40,21 +41,34 @@ public class CycleBlockInteraction extends CycleBlockGroupInteraction {
         Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(store.getExternalData().getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
         boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
         boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+        boolean isAdmin = player != null && player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission());
+
+        SafeAreasDebug.log("CycleBlockInteraction", "interactWithBlock type=" + type
+                + ", target=" + targetBlock
+                + ", regions=" + regions
+                + ", canBuild=" + canBreak
+                + ", canNotify=" + canNotify
+                + ", adminBypass=" + isAdmin);
 
         // User can not interact in this region
-        if (canBreak || player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+        if (canBreak || isAdmin) {
+            SafeAreasDebug.log("CycleBlockInteraction", "Allowing cycle block interaction at " + targetBlock);
             super.interactWithBlock(world, commandBuffer, type, context, heldItemStack, targetBlock, cooldownHandler);
             return;
         }
 
         if (canNotify) {
+            SafeAreasDebug.log("CycleBlockInteraction", "Blocking cycle block interaction and sending notification.");
             var lang = RegionManager.instance.getLang();
             var primaryMessage = lang.getMessage("ProtectionInteractPrimary");
             var secondaryMessage = lang.getMessage("ProtectionInteractSecondary");
             var icon = new ItemStack("Furniture_Crude_Chest_Small", 1).toPacket();
 
             NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
+            return;
         }
+
+        SafeAreasDebug.log("CycleBlockInteraction", "Blocking cycle block interaction without notification.");
 
     }
 
@@ -68,19 +82,31 @@ public class CycleBlockInteraction extends CycleBlockGroupInteraction {
         Set<Region> regions = RegionManager.instance.getApi().getRegionsAt(store.getExternalData().getWorld(), targetBlock.x, targetBlock.y, targetBlock.z);
         boolean canBreak = RegionFlagResolver.resolve(regions, RegionFlag.BUILD, true);
         boolean canNotify = RegionFlagResolver.resolve(regions, RegionFlag.NOTIFICATIONS, true);
+        boolean isAdmin = player != null && player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission());
+
+        SafeAreasDebug.log("CycleBlockInteraction", "simulateInteractWithBlock type=" + type
+                + ", target=" + targetBlock
+                + ", regions=" + regions
+                + ", canBuild=" + canBreak
+                + ", canNotify=" + canNotify
+                + ", adminBypass=" + isAdmin);
 
         // User can not interact in this region
-        if (canBreak || player.hasPermission(RegionManager.instance.getConfig().getDefaultAdminPermission())) {
+        if (canBreak || isAdmin) {
+            SafeAreasDebug.log("CycleBlockInteraction", "Allowing simulated cycle block interaction at " + targetBlock);
             super.simulateInteractWithBlock(type, context, itemInHand, world, targetBlock);
             return;
         }
         if (canNotify) {
+            SafeAreasDebug.log("CycleBlockInteraction", "Blocking simulated cycle block interaction and sending notification.");
             var lang = RegionManager.instance.getLang();
             var primaryMessage = lang.getMessage("ProtectionInteractPrimary");
             var secondaryMessage = lang.getMessage("ProtectionInteractSecondary");
             var icon = new ItemStack("Furniture_Crude_Chest_Small", 1).toPacket();
 
             NotificationUtil.sendNotification(playerRef.getPacketHandler(), primaryMessage, secondaryMessage, (ItemWithAllMetadata) icon);
+            return;
         }
+        SafeAreasDebug.log("CycleBlockInteraction", "Blocking simulated cycle block interaction without notification.");
     }
 }
